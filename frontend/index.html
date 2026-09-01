@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Recon — Finance Reconciliation Agent</title>
+<meta name="theme-color" content="#0b1020" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b1020;
+    --surface: #131a2e;
+    --surface-alt: #0f1526;
+    --border: #232b45;
+    --text: #e9edf7;
+    --text-muted: #8892ab;
+    --accent: #6c8cff;
+    --accent-dim: #3d4b8c;
+    --ok: #3ddc97;
+    --warn: #f5b942;
+    --danger: #ef5b5b;
+    --radius: 6px;
+  }
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3{
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .mono{ font-family: 'IBM Plex Mono', monospace; }
+  a{ color: inherit; }
+  .wrap{ max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position: sticky; top:0; z-index: 20;
+    background: rgba(11,16,32,0.88);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav .wrap{ display:flex; align-items:center; justify-content:space-between; height:60px; }
+  .nav-brand{ font-family:'Space Grotesk'; font-weight:700; font-size:1.05rem; }
+  .nav-brand span{ color: var(--accent); }
+  .nav-links{ display:flex; gap:28px; font-size:0.9rem; color: var(--text-muted); }
+  .nav-links a{ text-decoration:none; }
+  .nav-links a:hover{ color: var(--text); }
+  .status-pill{
+    font-size:0.78rem; padding:4px 10px; border-radius:20px;
+    border:1px solid var(--border); color: var(--text-muted);
+    display:flex; align-items:center; gap:6px;
+  }
+  .status-dot{ width:6px; height:6px; border-radius:50%; background: var(--text-muted); }
+  .status-pill.online .status-dot{ background: var(--ok); }
+  .status-pill.online{ color: var(--ok); border-color: rgba(61,220,151,0.3); }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding: 72px 0 40px; border-bottom: 1px solid var(--border); }
+  .hero h1{ font-size: clamp(2rem, 4.2vw, 3.1rem); max-width: 16ch; }
+  .hero p{ color: var(--text-muted); max-width: 58ch; font-size:1.05rem; margin-top:16px; }
+  .stat-row{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap:1px;
+    background: var(--border); border:1px solid var(--border); border-radius: var(--radius);
+    margin-top: 40px; overflow:hidden;
+  }
+  .stat{ background: var(--surface); padding: 20px 22px; }
+  .stat .num{ font-family:'IBM Plex Mono'; font-size:1.7rem; font-weight:500; }
+  .stat .label{ color: var(--text-muted); font-size:0.82rem; margin-top:4px; }
+  .stat.ok .num{ color: var(--ok); }
+  .stat.warn .num{ color: var(--warn); }
+  .stat.danger .num{ color: var(--danger); }
+
+  /* ---------- Sections ---------- */
+  section.stage{ padding: 56px 0; border-bottom: 1px solid var(--border); }
+  .stage-head{ display:flex; align-items:baseline; gap:14px; margin-bottom: 28px; }
+  .stage-num{ font-family:'IBM Plex Mono'; color: var(--accent); font-size:0.85rem; }
+  .stage-head h2{ font-size:1.5rem; }
+  .stage-sub{ color: var(--text-muted); margin: -18px 0 28px; max-width: 62ch; font-size:0.95rem; }
+
+  /* ---------- Upload ---------- */
+  .upload-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+  .dropzone{
+    border: 1px dashed var(--border); border-radius: var(--radius);
+    padding: 24px; background: var(--surface); cursor:pointer;
+    transition: border-color .15s ease;
+  }
+  .dropzone:hover, .dropzone.drag{ border-color: var(--accent); }
+  .dropzone input{ display:none; }
+  .dropzone .dz-label{ font-size:0.85rem; color: var(--text-muted); }
+  .dropzone .dz-file{ font-family:'IBM Plex Mono'; font-size:0.92rem; margin-top:8px; word-break:break-all; }
+  .dropzone .dz-hint{ font-size:0.78rem; color: var(--text-muted); margin-top:10px; }
+
+  .controls-row{ display:flex; align-items:center; justify-content:space-between; gap:20px; margin-top:20px; flex-wrap:wrap; }
+  .mode-toggle{ display:flex; border:1px solid var(--border); border-radius: var(--radius); overflow:hidden; }
+  .mode-toggle button{
+    background: var(--surface); color: var(--text-muted); border:none; padding:9px 16px;
+    font-family:'Inter'; font-size:0.85rem; cursor:pointer;
+  }
+  .mode-toggle button.active{ background: var(--accent-dim); color: var(--text); }
+  .run-btn{
+    background: var(--accent); color:#0b1020; border:none; border-radius: var(--radius);
+    padding: 11px 22px; font-family:'Space Grotesk'; font-weight:600; font-size:0.92rem;
+    cursor:pointer;
+  }
+  .run-btn:disabled{ background: var(--surface); color: var(--text-muted); cursor:not-allowed; border:1px solid var(--border); }
+  .run-btn:not(:disabled):hover{ opacity:0.92; }
+
+  .banner{ margin-top:18px; padding:12px 16px; border-radius: var(--radius); font-size:0.9rem; display:none; }
+  .banner.error{ background: rgba(239,91,91,0.1); border:1px solid rgba(239,91,91,0.35); color:#ffb3b3; display:block; }
+  .banner.loading{ background: rgba(108,140,255,0.1); border:1px solid rgba(108,140,255,0.35); color: var(--accent); display:block; }
+
+  /* ---------- Empty state ---------- */
+  .empty{ color: var(--text-muted); font-size:0.92rem; border:1px dashed var(--border); border-radius: var(--radius); padding:22px; }
+
+  /* ---------- Review clusters ---------- */
+  .review-list{ display:flex; flex-direction:column; gap:12px; }
+  .review-card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); padding:16px 18px; }
+  .review-card .names{ font-family:'IBM Plex Mono'; font-size:0.9rem; color: var(--warn); }
+  .review-card .reason{ color: var(--text-muted); font-size:0.87rem; margin-top:6px; }
+
+  /* ---------- Tables ---------- */
+  table{ width:100%; border-collapse: collapse; font-size:0.87rem; }
+  thead th{
+    text-align:left; color: var(--text-muted); font-weight:500; font-size:0.78rem;
+    padding: 10px 12px; border-bottom:1px solid var(--border);
+  }
+  tbody td{ padding: 10px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  tbody tr:last-child td{ border-bottom:none; }
+  td.num, th.num{ font-family:'IBM Plex Mono'; text-align:right; }
+  .tag{ font-family:'IBM Plex Mono'; font-size:0.74rem; padding:2px 7px; border-radius:4px; }
+  .tag.RECONCILED{ background: rgba(61,220,151,0.12); color: var(--ok); }
+  .tag.NOT_RECONCILED{ background: rgba(239,91,91,0.12); color: var(--danger); }
+  .tag.INFO_MISSING{ background: rgba(245,185,66,0.12); color: var(--warn); }
+  .table-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius: var(--radius); }
+  .table-note{ color: var(--text-muted); font-size:0.8rem; margin-top:10px; }
+
+  footer{ padding: 32px 0 60px; color: var(--text-muted); font-size:0.82rem; }
+  footer a{ color: var(--accent); text-decoration:none; }
+
+  @media (max-width: 720px){
+    .stat-row{ grid-template-columns: repeat(2,1fr); }
+    .upload-grid{ grid-template-columns: 1fr; }
+    .nav-links{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <div class="nav-brand">Recon<span>.</span></div>
+    <div class="nav-links">
+      <a href="#upload">Upload</a>
+      <a href="#vendors">Vendor Resolution</a>
+      <a href="#results">Reconciliation</a>
+      <a href="#exceptions">Exceptions</a>
+    </div>
+    <div class="status-pill" id="statusPill"><span class="status-dot"></span><span id="statusText">Checking backend…</span></div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Reconcile transactions and invoices without guessing at vendor identity.</h1>
+    <p>Upload a transactions and invoices CSV. A single scoped model call resolves vendor names; everything after that — matching, allocation, exceptions — runs on deterministic rules you can audit.</p>
+    <div class="stat-row" id="statRow">
+      <div class="stat"><div class="num" id="statRecordRate">—</div><div class="label">Record match rate</div></div>
+      <div class="stat ok"><div class="num" id="statAmountRate">—</div><div class="label">Amount match rate</div></div>
+      <div class="stat warn" id="statReviewCard"><div class="num" id="statReview">—</div><div class="label">Vendor groups needing review</div></div>
+      <div class="stat danger"><div class="num" id="statExceptions">—</div><div class="label">Exceptions to resolve</div></div>
+    </div>
+  </div>
+</header>
+
+<section class="stage" id="upload">
+  <div class="wrap">
+    <div class="stage-head"><span class="stage-num">01</span><h2>Upload &amp; run</h2></div>
+    <p class="stage-sub">transactions.csv needs txn_id, txn_date, raw_vendor_name, amount, reference. invoices.csv needs invoice_id, invoice_date, raw_vendor_name, amount, reference.</p>
+
+    <div class="upload-grid">
+      <label class="dropzone" id="dzTxn">
+        <input type="file" id="fileTxn" accept=".csv" />
+        <div class="dz-label">Transactions CSV</div>
+        <div class="dz-file" id="dzTxnFile">No file selected</div>
+        <div class="dz-hint">Click to browse or drop a .csv file</div>
+      </label>
+      <label class="dropzone" id="dzInv">
+        <input type="file" id="fileInv" accept=".csv" />
+        <div class="dz-label">Invoices CSV</div>
+        <div class="dz-file" id="dzInvFile">No file selected</div>
+        <div class="dz-hint">Click to browse or drop a .csv file</div>
+      </label>
+    </div>
+
+    <div class="controls-row">
+      <div class="mode-toggle" id="modeToggle">
+        <button type="button" class="active" data-mode="offline">Offline (heuristic)</button>
+        <button type="button" data-mode="online">Online (Grok)</button>
+      </div>
+      <button class="run-btn" id="runBtn" disabled>Run reconciliation</button>
+    </div>
+
+    <div class="banner" id="banner"></div>
+  </div>
+</section>
+
+<section class="stage" id="vendors">
+  <div class="wrap">
+    <div class="stage-head"><span class="stage-num">02</span><h2>Vendor resolution</h2></div>
+    <p class="stage-sub" id="vendorSummary">Run reconciliation to see which raw vendor names were merged automatically and which need human review.</p>
+    <div id="vendorReviewArea"><div class="empty">Vendor groups flagged for review will appear here after a run.</div></div>
+  </div>
+</section>
+
+<section class="stage" id="results">
+  <div class="wrap">
+    <div class="stage-head"><span class="stage-num">03</span><h2>Reconciliation results</h2></div>
+    <p class="stage-sub">Per-vendor match rate, both by record count and by amount — a few high-value unmatched records can hide behind a good record-level rate.</p>
+    <div id="resultsArea"><div class="empty">Per-vendor results will appear here after a run.</div></div>
+  </div>
+</section>
+
+<section class="stage" id="exceptions" style="border-bottom:none;">
+  <div class="wrap">
+    <div class="stage-head"><span class="stage-num">04</span><h2>Exceptions</h2></div>
+    <p class="stage-sub">Every record that didn't cleanly reconcile, with the reason and a recommended next step.</p>
+    <div id="exceptionsArea"><div class="empty">Exceptions will appear here after a run.</div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Finance Reconciliation Agent — vendor identity resolved by one scoped model call, everything downstream deterministic.</div>
+</footer>
+
+<script>
+  // Same-origin relative paths -- in production these are routed to the
+  // Render backend via vercel.json rewrites, so no CORS is involved.
+  const API_BASE = '';
+
+  const $ = (id) => document.getElementById(id);
+  let txnFile = null, invFile = null, mode = 'offline';
+
+  function fmtPct(v){ return (v ?? 0).toFixed(1) + '%'; }
+  function fmtMoney(v){
+    if (v === null || v === undefined) return '—';
+    return '₹' + Number(v).toLocaleString('en-IN', {maximumFractionDigits:0});
+  }
+
+  function wireDropzone(zoneId, inputId, fileLabelId, onPick){
+    const zone = $(zoneId), input = $(inputId), label = $(fileLabelId);
+    input.addEventListener('change', () => {
+      if (input.files[0]){ onPick(input.files[0]); label.textContent = input.files[0].name; }
+    });
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault(); zone.classList.remove('drag');
+      const f = e.dataTransfer.files[0];
+      if (f){ input.files = e.dataTransfer.files; onPick(f); label.textContent = f.name; }
+    });
+  }
+
+  wireDropzone('dzTxn','fileTxn','dzTxnFile', (f) => { txnFile = f; updateRunState(); });
+  wireDropzone('dzInv','fileInv','dzInvFile', (f) => { invFile = f; updateRunState(); });
+
+  function updateRunState(){
+    $('runBtn').disabled = !(txnFile && invFile);
+  }
+
+  document.querySelectorAll('#modeToggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#modeToggle button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.dataset.mode;
+    });
+  });
+
+  function showBanner(kind, text){
+    const b = $('banner');
+    b.className = 'banner ' + kind;
+    b.textContent = text;
+  }
+  function clearBanner(){ $('banner').className = 'banner'; $('banner').textContent = ''; }
+
+  async function checkHealth(){
+    try{
+      const res = await fetch(API_BASE + '/api/health');
+      const data = await res.json();
+      const pill = $('statusPill');
+      if (data.status === 'ok'){
+        pill.classList.add('online');
+        $('statusText').textContent = data.grok_configured ? 'Backend live · Grok configured' : 'Backend live · offline mode only';
+      }
+    }catch(e){
+      $('statusText').textContent = 'Backend unreachable';
+    }
+  }
+  checkHealth();
+
+  $('runBtn').addEventListener('click', async () => {
+    clearBanner();
+    showBanner('loading', 'Running reconciliation…');
+    $('runBtn').disabled = true;
+
+    const form = new FormData();
+    form.append('transactions', txnFile);
+    form.append('invoices', invFile);
+    form.append('mode', mode);
+
+    try{
+      const res = await fetch(API_BASE + '/api/reconcile', { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok){
+        showBanner('error', data.detail || 'Reconciliation failed.');
+        $('runBtn').disabled = false;
+        return;
+      }
+      clearBanner();
+      renderResults(data);
+    }catch(e){
+      showBanner('error', 'Could not reach the backend. Check that the API is running and reachable.');
+    }
+    $('runBtn').disabled = false;
+  });
+
+  function renderResults(data){
+    const o = data.report.overall;
+    $('statRecordRate').textContent = fmtPct(o.record_match_rate_pct);
+    $('statAmountRate').textContent = fmtPct(o.amount_match_rate_pct);
+    $('statReview').textContent = data.needs_review_groups.length;
+    $('statExceptions').textContent = data.exceptions.length;
+
+    // Vendor resolution
+    $('vendorSummary').textContent = data.vendor_map_size + ' vendor name(s) resolved automatically · ' +
+      data.needs_review_groups.length + ' group(s) need human review before reconciliation.';
+    const reviewArea = $('vendorReviewArea');
+    if (data.needs_review_groups.length === 0){
+      reviewArea.innerHTML = '<div class="empty">No vendor names needed review — every raw name resolved with confidence.</div>';
+    } else {
+      reviewArea.innerHTML = '<div class="review-list">' + data.needs_review_groups.map(g => `
+        <div class="review-card">
+          <div class="names">${g.names.join(' · ')}</div>
+          <div class="reason">${g.reason}</div>
+        </div>
+      `).join('') + '</div>';
+    }
+
+    // Per-vendor results table
+    const perVendor = Object.entries(data.report.per_vendor).sort((a,b) => a[0].localeCompare(b[0]));
+    const resultsArea = $('resultsArea');
+    if (perVendor.length === 0){
+      resultsArea.innerHTML = '<div class="empty">No vendor groups reached reconciliation.</div>';
+    } else {
+      resultsArea.innerHTML = `
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>Vendor</th><th class="num">Total</th><th class="num">Reconciled</th>
+            <th class="num">Not reconciled</th><th class="num">Info missing</th>
+            <th class="num">Record match</th><th class="num">Amount match</th>
+          </tr></thead>
+          <tbody>
+            ${perVendor.map(([vid, s]) => `
+              <tr>
+                <td class="mono">${vid}</td>
+                <td class="num">${s.total}</td>
+                <td class="num">${s.reconciled}</td>
+                <td class="num">${s.not_reconciled}</td>
+                <td class="num">${s.info_missing}</td>
+                <td class="num">${fmtPct(s.record_match_rate_pct)}</td>
+                <td class="num">${fmtPct(s.amount_match_rate_pct)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table></div>
+      `;
+    }
+
+    // Exceptions table (cap displayed rows, note the rest)
+    const exceptionsArea = $('exceptionsArea');
+    const CAP = 100;
+    if (data.exceptions.length === 0){
+      exceptionsArea.innerHTML = '<div class="empty">No exceptions — every record reconciled.</div>';
+    } else {
+      const shown = data.exceptions.slice(0, CAP);
+      exceptionsArea.innerHTML = `
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>Record</th><th>Vendor</th><th class="num">Amount</th>
+            <th>Status</th><th>Reason</th><th>Recommended action</th>
+          </tr></thead>
+          <tbody>
+            ${shown.map(e => `
+              <tr>
+                <td class="mono">${e.record_id}</td>
+                <td class="mono">${e.vendor_id ?? '—'}</td>
+                <td class="num">${fmtMoney(e.amount)}</td>
+                <td><span class="tag ${e.exception_type}">${e.exception_type.replace('_',' ')}</span></td>
+                <td>${e.reason}</td>
+                <td>${e.recommended_action}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table></div>
+        ${data.exceptions.length > CAP ? `<div class="table-note">Showing ${CAP} of ${data.exceptions.length} exceptions.</div>` : ''}
+      `;
+    }
+  }
+</script>
+
+</body>
+</html>
