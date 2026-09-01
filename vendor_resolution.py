@@ -103,10 +103,18 @@ def make_grok_llm_call_fn(model="grok-4", api_key=None):
         llm_call_fn = make_grok_llm_call_fn()
         result = run_pipeline(txn_path, inv_path, llm_call_fn=llm_call_fn)
     """
+    import os
     from openai import OpenAI
 
+    resolved_key = api_key or os.environ.get("XAI_API_KEY")
+    if not resolved_key:
+        raise RuntimeError(
+            "No Grok API key found. Set the XAI_API_KEY environment variable "
+            "or pass api_key= explicitly."
+        )
+
     client = OpenAI(
-        api_key=api_key,  # falls back to XAI_API_KEY env var if None
+        api_key=resolved_key,
         base_url="https://api.x.ai/v1",
     )
 
