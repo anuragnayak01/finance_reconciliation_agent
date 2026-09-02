@@ -90,7 +90,7 @@ def call_llm_vendor_resolution(unique_names, llm_call_fn):
     return json.loads(cleaned)
 
 
-def make_groq_llm_call_fn(model="llama-3.3-70b-versatile", api_key=None):
+def make_groq_llm_call_fn(model=None, api_key=None):
     """Builds an llm_call_fn backed by Groq's free-tier hosted models.
 
     Groq's API is OpenAI-SDK compatible, so this uses the `openai` package
@@ -99,9 +99,16 @@ def make_groq_llm_call_fn(model="llama-3.3-70b-versatile", api_key=None):
     https://console.groq.com/keys. Install with:
         pip install openai
 
-    Model names on Groq's free tier change periodically as they add/retire
-    models -- check https://console.groq.com/docs/models for the current
-    list if "model" here starts returning a model_decommissioned error.
+    Groq retires and swaps free-tier models fairly often, so the model is
+    resolved at call time from (in priority order): the `model` argument,
+    then the GROQ_MODEL environment variable, then a hardcoded default.
+    This means a future retirement can usually be fixed by changing the
+    GROQ_MODEL env var on Render -- no code change or redeploy needed.
+    Current model catalog: https://console.groq.com/docs/models (prefer
+    "Production" tier models over "Preview", which can disappear without
+    notice). To see exactly what your key currently has access to:
+        curl https://api.groq.com/openai/v1/models \
+          -H "Authorization: Bearer $GROQ_API_KEY"
 
     Usage:
         from vendor_resolution import make_groq_llm_call_fn
@@ -109,7 +116,7 @@ def make_groq_llm_call_fn(model="llama-3.3-70b-versatile", api_key=None):
         result = run_pipeline(txn_path, inv_path, llm_call_fn=llm_call_fn)
     """
     import os
-    from openai import OpenAI
+    from openai import OpenAI, NotFoundError
 
     resolved_key = api_key or os.environ.get("GROQ_API_KEY")
     if not resolved_key:
@@ -119,17 +126,27 @@ def make_groq_llm_call_fn(model="llama-3.3-70b-versatile", api_key=None):
             "https://console.groq.com/keys."
         )
 
+    resolved_model = model or os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
+
     client = OpenAI(
         api_key=resolved_key,
         base_url="https://api.groq.com/openai/v1",
     )
 
     def llm_call_fn(prompt):
-        resp = client.chat.completions.create(
-            model=model,
-            max_tokens=2000,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        try:
+            resp = client.chat.completions.create(
+                model=resolved_model,
+                max_tokens=2000,
+                messages=[{"role": "user", "content": prompt}],
+            )
+        except NotFoundError as exc:
+            raise RuntimeError(
+                f"Groq model '{resolved_model}' was not found (it may have "
+                "been retired). Set the GROQ_MODEL environment variable to "
+                "a current model from https://console.groq.com/docs/models "
+                f"and try again. Original error: {exc}"
+            ) from exc
         return resp.choices[0].message.content
 
     return llm_call_fn
