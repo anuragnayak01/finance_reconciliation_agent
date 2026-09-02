@@ -43,10 +43,15 @@
     background: rgba(12,15,22,0.9); backdrop-filter: blur(8px);
     border-bottom:1px solid var(--border);
   }
-  header.topbar .wrap{ height:60px; display:flex; align-items:center; justify-content:space-between; }
+  header.topbar .wrap{ height:60px; display:flex; align-items:center; justify-content:center; }
   .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:1.05rem; display:flex; align-items:center; gap:10px; }
   .brand .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); }
-  .status{ font-size:0.8rem; color:var(--muted); display:flex; align-items:center; gap:6px; }
+
+  .conn-banner{
+    text-align:center; padding:14px 24px 16px;
+    background:var(--surface); border-bottom:1px solid var(--border);
+  }
+  .status{ font-size:0.85rem; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:6px; }
   .status .led{ width:6px; height:6px; border-radius:50%; background:var(--muted); flex-shrink:0; }
   .status.online .led{ background:var(--ok); }
   .status.online{ color:var(--ok); }
@@ -54,6 +59,7 @@
   .status.warn{ color:var(--warn); }
   .status.danger .led{ background:var(--danger); }
   .status.danger{ color:var(--danger); }
+  .conn-note{ color:var(--muted); font-size:0.78rem; margin-top:6px; }
   .refresh-btn{
     background:none; border:none; color:inherit; cursor:pointer;
     padding:3px; margin-left:2px; border-radius:5px;
@@ -159,25 +165,30 @@
 <header class="topbar">
   <div class="wrap">
     <div class="brand"><span class="dot"></span>AI Finance Controller</div>
-    <div class="status" id="statusPill">
-      <span class="led"></span><span id="statusText">Checking backend…</span>
-      <button class="refresh-btn" id="refreshBtn" title="Recheck backend connection" aria-label="Recheck backend connection">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="23 4 23 10 17 10"></polyline>
-          <polyline points="1 20 1 14 7 14"></polyline>
-          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
-        </svg>
-      </button>
-    </div>
   </div>
 </header>
 
+<div class="conn-banner">
+  <div class="status" id="statusPill">
+    <span class="led"></span><span id="statusText">Checking backend…</span>
+    <button class="refresh-btn" id="refreshBtn" title="Recheck backend connection" aria-label="Recheck backend connection">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+      </svg>
+    </button>
+  </div>
+  <div class="conn-note">Please refresh if this doesn't show live deployed on Render's free tier, which can take up to a minute to wake up.</div>
+</div>
+
 <main class="wrap">
+
 
   <!-- ============ HOME / INDEX ============ -->
   <section class="view active" data-view="home" id="view-home">
     <div class="home-head">
-      <p>A two-stage pipeline: one scoped AI call resolves vendor identity, then deterministic rules handle matching, allocation, and exceptions — nothing about the money itself is left to the model.</p>
+      <p>A two-stage pipeline: one scoped AI call resolves vendor identity, then deterministic rules handle matching, allocation, and exceptions nothing about the money itself is left to the model.</p>
     </div>
     <div class="grid">
       <button class="card primary" onclick="showView('upload')">
