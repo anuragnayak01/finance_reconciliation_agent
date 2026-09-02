@@ -47,9 +47,23 @@
   .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:1.05rem; display:flex; align-items:center; gap:10px; }
   .brand .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); }
   .status{ font-size:0.8rem; color:var(--muted); display:flex; align-items:center; gap:6px; }
-  .status .led{ width:6px; height:6px; border-radius:50%; background:var(--muted); }
+  .status .led{ width:6px; height:6px; border-radius:50%; background:var(--muted); flex-shrink:0; }
   .status.online .led{ background:var(--ok); }
   .status.online{ color:var(--ok); }
+  .status.warn .led{ background:var(--warn); }
+  .status.warn{ color:var(--warn); }
+  .status.danger .led{ background:var(--danger); }
+  .status.danger{ color:var(--danger); }
+  .refresh-btn{
+    background:none; border:none; color:inherit; cursor:pointer;
+    padding:3px; margin-left:2px; border-radius:5px;
+    display:flex; align-items:center; justify-content:center; line-height:0;
+  }
+  .refresh-btn:hover{ background:rgba(255,255,255,0.08); }
+  .refresh-btn:disabled{ cursor:default; opacity:0.55; }
+  .refresh-btn.spinning svg{ animation: rspin 0.8s linear infinite; }
+  @keyframes rspin{ to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ .refresh-btn.spinning svg{ animation:none; } }
 
   main{ padding: 40px 0 80px; }
   .view{ display:none; animation: fade .2s ease; }
@@ -145,7 +159,16 @@
 <header class="topbar">
   <div class="wrap">
     <div class="brand"><span class="dot"></span>AI Finance Controller</div>
-    <div class="status" id="statusPill"><span class="led"></span><span id="statusText">Checking backend…</span></div>
+    <div class="status" id="statusPill">
+      <span class="led"></span><span id="statusText">Checking backend…</span>
+      <button class="refresh-btn" id="refreshBtn" title="Recheck backend connection" aria-label="Recheck backend connection">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+        </svg>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -290,6 +313,64 @@
     });
   });
 
+  async function checkHealth(){
+    try{
+      const res = await fetch(API_BASE + '/api/health');
+      const data = await res.json();
+      return (data && data.status === 'ok') ? data : null;
+    }catch(e){ return null; }
+  }
+
+  // Render's free tier spins a backend down after 15 min idle and takes
+  // roughly a minute to wake back up on the next request. Rather than fail
+  // once, poll for a while so the status pill (and anyone watching it)
+  // sees the backend come back on its own.
+  const HEALTH_RETRY_MS = 4000;
+  const HEALTH_MAX_ATTEMPTS = 20; // ~80s total, covers a cold start with buffer
+  let healthAttempt = 0;
+  let healthTimer = null;
+  let healthInFlight = false;
+
+  function setStatus(kind, text, spinning){
+    $('statusPill').className = 'status' + (kind ? ' ' + kind : '');
+    $('statusText').textContent = text;
+    $('refreshBtn').classList.toggle('spinning', !!spinning);
+  }
+
+  async function pollHealth(){
+    if (healthInFlight) return;
+    healthInFlight = true;
+    if (healthTimer){ clearTimeout(healthTimer); healthTimer = null; }
+    healthAttempt = 0;
+    $('refreshBtn').disabled = true;
+    await pollStep();
+    healthInFlight = false;
+  }
+
+  async function pollStep(){
+    healthAttempt++;
+    const first = healthAttempt === 1;
+    setStatus(first ? '' : 'warn',
+      first ? 'Checking backend…' : `Waking up backend… (this can take up to a minute)`,
+      true);
+    const data = await checkHealth();
+    if (data){
+      setStatus('online', data.groq_configured ? 'Backend live · Groq configured' : 'Backend live · offline mode only', false);
+      $('refreshBtn').disabled = false;
+      return;
+    }
+    if (healthAttempt >= HEALTH_MAX_ATTEMPTS){
+      setStatus('danger', 'Backend unreachable — tap ↻ to retry', false);
+      $('refreshBtn').disabled = false;
+      return;
+    }
+    await new Promise(r => { healthTimer = setTimeout(r, HEALTH_RETRY_MS); });
+    await pollStep();
+  }
+
+  $('refreshBtn').addEventListener('click', () => pollHealth());
+  pollHealth();
+
   function showBanner(kind, text, actionLabel, actionFn){
     const b = $('banner');
     b.className = 'banner ' + kind;
@@ -301,18 +382,6 @@
     }
   }
   function clearBanner(){ $('banner').className = 'banner'; $('banner').innerHTML = ''; }
-
-  async function checkHealth(){
-    try{
-      const res = await fetch(API_BASE + '/api/health');
-      const data = await res.json();
-      if (data.status === 'ok'){
-        $('statusPill').classList.add('online');
-        $('statusText').textContent = data.groq_configured ? 'Backend live · Groq configured' : 'Backend live · offline mode only';
-      }
-    }catch(e){ $('statusText').textContent = 'Backend unreachable'; }
-  }
-  checkHealth();
 
   $('runBtn').addEventListener('click', async () => {
     clearBanner();
@@ -336,7 +405,8 @@
       renderResults(data);
       showBanner('success', 'Run complete.', 'View results →', () => showView('results'));
     }catch(e){
-      showBanner('error', 'Could not reach the backend. Check that the API is running and reachable.');
+      showBanner('error', 'Could not reach the backend — it may be asleep from inactivity. Watch the status indicator top-right; retrying automatically…');
+      pollHealth();
     }
     $('runBtn').disabled = false;
   });
