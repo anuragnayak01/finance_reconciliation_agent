@@ -5,12 +5,12 @@ Entry point. Run with:
 
 By default this runs OFFLINE (no LLM call) using the deterministic fallback
 in vendor_resolution.py, so it can be executed without API access. To use a
-real LLM (Grok, via xAI) for vendor resolution, set the XAI_API_KEY
-environment variable and pass --online, or import make_grok_llm_call_fn
-directly:
+real LLM (via Groq's free tier) for vendor resolution, set the GROQ_API_KEY
+environment variable (get one free at https://console.groq.com/keys) and
+pass --online, or import make_groq_llm_call_fn directly:
 
-    from vendor_resolution import make_grok_llm_call_fn
-    llm_call_fn = make_grok_llm_call_fn()  # requires XAI_API_KEY env var
+    from vendor_resolution import make_groq_llm_call_fn
+    llm_call_fn = make_groq_llm_call_fn()  # requires GROQ_API_KEY env var
     result = run_pipeline(txn_path, inv_path, llm_call_fn=llm_call_fn)
 """
 
@@ -18,7 +18,7 @@ import sys
 import json
 from pipeline import run_pipeline
 from report import build_report, print_report
-from vendor_resolution import make_grok_llm_call_fn
+from vendor_resolution import make_groq_llm_call_fn
 
 
 def main():
@@ -26,7 +26,7 @@ def main():
     inv_path = sys.argv[2] if len(sys.argv) > 2 else "invoices.csv"
     use_online = "--online" in sys.argv
 
-    llm_call_fn = make_grok_llm_call_fn() if use_online else None
+    llm_call_fn = make_groq_llm_call_fn() if use_online else None
     result = run_pipeline(txn_path, inv_path, llm_call_fn=llm_call_fn)
     report = build_report(result)
 

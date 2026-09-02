@@ -206,7 +206,7 @@
     <div class="controls-row">
       <div class="mode-toggle" id="modeToggle">
         <button type="button" class="active" data-mode="offline">Offline</button>
-        <button type="button" data-mode="online">Online (Grok)</button>
+        <button type="button" data-mode="online">Online (Groq)</button>
       </div>
       <button class="run-btn" id="runBtn" disabled>Run reconciliation</button>
     </div>
@@ -308,7 +308,7 @@
       const data = await res.json();
       if (data.status === 'ok'){
         $('statusPill').classList.add('online');
-        $('statusText').textContent = data.grok_configured ? 'Backend live · Grok configured' : 'Backend live · offline mode only';
+        $('statusText').textContent = data.groq_configured ? 'Backend live · Groq configured' : 'Backend live · offline mode only';
       }
     }catch(e){ $('statusText').textContent = 'Backend unreachable'; }
   }

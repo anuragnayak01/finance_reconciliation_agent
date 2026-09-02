@@ -79,7 +79,7 @@ def build_prompt(unique_names):
 def call_llm_vendor_resolution(unique_names, llm_call_fn):
     """llm_call_fn: Callable[[str], str] that sends a prompt to a model and
     returns its raw text response. Kept generic so any provider/SDK can be
-    plugged in -- see make_grok_llm_call_fn() below for the default one
+    plugged in -- see make_groq_llm_call_fn() below for the default one
     used by this project.
     """
     prompt = build_prompt(unique_names)
@@ -90,32 +90,38 @@ def call_llm_vendor_resolution(unique_names, llm_call_fn):
     return json.loads(cleaned)
 
 
-def make_grok_llm_call_fn(model="grok-4", api_key=None):
-    """Builds an llm_call_fn backed by xAI's Grok models.
+def make_groq_llm_call_fn(model="llama-3.3-70b-versatile", api_key=None):
+    """Builds an llm_call_fn backed by Groq's free-tier hosted models.
 
-    Grok's API is OpenAI-SDK compatible, so this uses the `openai` package
-    pointed at xAI's base URL. Requires XAI_API_KEY to be set in the
-    environment (or pass api_key explicitly). Install with:
+    Groq's API is OpenAI-SDK compatible, so this uses the `openai` package
+    pointed at Groq's base URL. Requires GROQ_API_KEY to be set in the
+    environment (or pass api_key explicitly). Get a free key at
+    https://console.groq.com/keys. Install with:
         pip install openai
 
+    Model names on Groq's free tier change periodically as they add/retire
+    models -- check https://console.groq.com/docs/models for the current
+    list if "model" here starts returning a model_decommissioned error.
+
     Usage:
-        from vendor_resolution import make_grok_llm_call_fn
-        llm_call_fn = make_grok_llm_call_fn()
+        from vendor_resolution import make_groq_llm_call_fn
+        llm_call_fn = make_groq_llm_call_fn()
         result = run_pipeline(txn_path, inv_path, llm_call_fn=llm_call_fn)
     """
     import os
     from openai import OpenAI
 
-    resolved_key = api_key or os.environ.get("XAI_API_KEY")
+    resolved_key = api_key or os.environ.get("GROQ_API_KEY")
     if not resolved_key:
         raise RuntimeError(
-            "No Grok API key found. Set the XAI_API_KEY environment variable "
-            "or pass api_key= explicitly."
+            "No Groq API key found. Set the GROQ_API_KEY environment variable "
+            "or pass api_key= explicitly. Get a free key at "
+            "https://console.groq.com/keys."
         )
 
     client = OpenAI(
         api_key=resolved_key,
-        base_url="https://api.x.ai/v1",
+        base_url="https://api.groq.com/openai/v1",
     )
 
     def llm_call_fn(prompt):

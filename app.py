@@ -25,7 +25,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from pipeline import run_pipeline
 from report import build_report
-from vendor_resolution import make_grok_llm_call_fn
+from vendor_resolution import make_groq_llm_call_fn
 
 app = FastAPI(title="Finance Reconciliation Agent API")
 
@@ -61,7 +61,7 @@ def _validate_csv(file_bytes: bytes, required_columns: set, label: str):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "grok_configured": bool(os.environ.get("XAI_API_KEY"))}
+    return {"status": "ok", "groq_configured": bool(os.environ.get("GROQ_API_KEY"))}
 
 
 @app.post("/api/reconcile")
@@ -81,12 +81,12 @@ async def reconcile(
 
     llm_call_fn = None
     if mode == "online":
-        if not os.environ.get("XAI_API_KEY"):
+        if not os.environ.get("GROQ_API_KEY"):
             raise HTTPException(
                 400,
-                "mode=online requires XAI_API_KEY to be set on the server.",
+                "mode=online requires GROQ_API_KEY to be set on the server.",
             )
-        llm_call_fn = make_grok_llm_call_fn()
+        llm_call_fn = make_groq_llm_call_fn()
 
     with tempfile.TemporaryDirectory() as tmp:
         txn_path = os.path.join(tmp, "transactions.csv")
