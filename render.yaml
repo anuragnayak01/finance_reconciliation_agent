@@ -8,3 +8,5 @@ services:
     envVars:
       - key: GROQ_API_KEY
         sync: false   # set manually in the Render dashboard, never commit this
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b   # override here if this model is retired later
