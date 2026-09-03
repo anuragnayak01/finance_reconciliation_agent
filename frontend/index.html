@@ -48,8 +48,9 @@
   .brand .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); }
 
   .conn-banner{
-    text-align:center; padding:14px 24px 16px;
-    background:var(--surface); border-bottom:1px solid var(--border);
+    text-align:center; padding:16px 24px;
+    max-width:640px; margin:20px auto 0;
+    background:var(--surface); border:1px solid var(--border); border-radius: var(--radius);
   }
   .status{ font-size:0.85rem; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:6px; }
   .status .led{ width:6px; height:6px; border-radius:50%; background:var(--muted); flex-shrink:0; }
@@ -71,13 +72,14 @@
   @keyframes rspin{ to{ transform:rotate(360deg); } }
   @media (prefers-reduced-motion: reduce){ .refresh-btn.spinning svg{ animation:none; } }
 
-  main{ padding: 40px 0 80px; }
+  main{ padding: 24px 0 80px; }
+  #view-home.active{ display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:20px; padding-top:0; text-align:center; }
   .view{ display:none; animation: fade .2s ease; }
   .view.active{ display:block; }
   @keyframes fade{ from{ opacity:0; transform:translateY(4px);} to{ opacity:1; transform:none; } }
 
   /* ---------- Upload / main page ---------- */
-  .home-head{ margin-bottom: 32px; max-width: 62ch; }
+  .home-head{ max-width: 62ch; }
   .home-head p{ color:var(--muted); font-size:1rem; }
 
   .back-btn{
