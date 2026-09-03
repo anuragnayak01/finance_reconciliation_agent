@@ -76,29 +76,10 @@
   .view.active{ display:block; }
   @keyframes fade{ from{ opacity:0; transform:translateY(4px);} to{ opacity:1; transform:none; } }
 
-  /* ---------- Home / index ---------- */
+  /* ---------- Upload / main page ---------- */
   .home-head{ margin-bottom: 32px; max-width: 62ch; }
   .home-head p{ color:var(--muted); font-size:1rem; }
 
-  .grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:14px; align-items: stretch; }
-  .card{
-    text-align:left; background:var(--surface); border:1px solid var(--border);
-    border-radius: var(--radius); padding:22px; cursor:pointer;
-    display:flex; flex-direction:column; gap:12px; color:var(--text);
-    min-height: 176px;
-    transition: border-color .15s ease, background .15s ease;
-  }
-  .card:hover{ border-color: var(--accent); background: var(--surface-hi); }
-  .card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-  .card h3{ font-size:1.05rem; }
-  .card .desc{ color:var(--muted); font-size:0.87rem; }
-  .card .go{ color:var(--accent); font-size:0.85rem; white-space:nowrap; }
-  .card.primary{ border-color: var(--accent-soft); background: linear-gradient(180deg, var(--accent-soft), transparent 60%); }
-  .card-stat{ margin-top:auto; display:flex; align-items:baseline; gap:8px; }
-  .card-stat .stat{ font-family:'IBM Plex Mono'; font-size:1.5rem; line-height:1; }
-  .card-stat .stat-label{ color:var(--muted); font-size:0.8rem; }
-
-  /* ---------- Detail views ---------- */
   .back-btn{
     background:none; border:none; color:var(--muted); font-size:0.88rem;
     cursor:pointer; padding:0; margin-bottom:20px; display:flex; align-items:center; gap:6px;
@@ -106,6 +87,28 @@
   .back-btn:hover{ color:var(--text); }
   .view-head{ margin-bottom:28px; }
   .view-head p{ color:var(--muted); margin-top:6px; max-width:60ch; font-size:0.94rem; }
+
+  /* ---------- Quick-link cards inside Upload & run (navigate to full pages) ---------- */
+  .section-links{ margin-top:44px; padding-top:36px; border-top:1px solid var(--border); }
+  .section-links h3{ font-size:0.95rem; margin-bottom:14px; }
+  .grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; align-items: stretch; }
+  .card{
+    text-align:left; background:var(--surface); border:1px solid var(--border);
+    border-radius: var(--radius); padding:20px; cursor:pointer;
+    display:flex; flex-direction:column; gap:10px; color:var(--text);
+    min-height: 140px;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .card:hover{ border-color: var(--accent); background: var(--surface-hi); }
+  .card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .card h3{ font-size:1.0rem; }
+  .card .desc{ color:var(--muted); font-size:0.85rem; }
+  .card .go{ color:var(--accent); font-size:0.85rem; white-space:nowrap; }
+  .card-stat{ margin-top:auto; display:flex; align-items:baseline; gap:8px; }
+  .card-stat .stat{ font-family:'IBM Plex Mono'; font-size:1.3rem; line-height:1; }
+  .card-stat .stat-label{ color:var(--muted); font-size:0.78rem; }
+  .card.primary{ border-color: var(--accent-soft); background: linear-gradient(180deg, var(--accent-soft), transparent 60%); }
+  @media (max-width: 780px){ .grid{ grid-template-columns:1fr; } }
 
   /* ---------- Upload ---------- */
   .upload-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
@@ -155,7 +158,6 @@
   .table-note{ color:var(--muted); font-size:0.8rem; margin-top:10px; }
 
   @media (max-width: 680px){
-    .grid{ grid-template-columns:1fr; }
     .upload-grid{ grid-template-columns:1fr; }
   }
 </style>
@@ -184,37 +186,20 @@
 
 <main class="wrap">
 
-
-  <!-- ============ HOME / INDEX ============ -->
+  <!-- ============ HOME (only one option: Upload & run) ============ -->
   <section class="view active" data-view="home" id="view-home">
-    <div class="home-head">
+    <div class="home-head" style="text-align:center; max-width:62ch; margin-left:auto; margin-right:auto;">
       <p>A two-stage pipeline: one scoped AI call resolves vendor identity, then deterministic rules handle matching, allocation, and exceptions nothing about the money itself is left to the model.</p>
     </div>
-    <div class="grid">
-      <button class="card primary" onclick="showView('upload')">
+    <div class="grid" style="grid-template-columns:1fr; justify-items:center;">
+      <button class="card primary" onclick="showView('upload')" style="max-width:420px; width:100%;">
         <div class="card-top"><h3>Upload &amp; run</h3><span class="go">Open →</span></div>
         <div class="desc">Upload transactions.csv and invoices.csv, choose a mode, and run the pipeline.</div>
-        <div class="card-stat"><div class="stat" id="homeUploadStat">—</div><div class="stat-label">records in last run</div></div>
-      </button>
-      <button class="card" onclick="showView('vendors')">
-        <div class="card-top"><h3>Vendor resolution</h3><span class="go">Open →</span></div>
-        <div class="desc">See which vendor names were merged automatically and which need a human check.</div>
-        <div class="card-stat"><div class="stat" id="homeVendorStat">—</div><div class="stat-label">groups need review</div></div>
-      </button>
-      <button class="card" onclick="showView('results')">
-        <div class="card-top"><h3>Reconciliation results</h3><span class="go">Open →</span></div>
-        <div class="desc">Per-vendor match rate, both by record count and by amount.</div>
-        <div class="card-stat"><div class="stat" id="homeResultsStat">—</div><div class="stat-label">record match rate</div></div>
-      </button>
-      <button class="card" onclick="showView('exceptions')">
-        <div class="card-top"><h3>Exceptions</h3><span class="go">Open →</span></div>
-        <div class="desc">Every unmatched record, with the reason and a recommended next step.</div>
-        <div class="card-stat"><div class="stat" id="homeExceptionsStat">—</div><div class="stat-label">records to resolve</div></div>
       </button>
     </div>
   </section>
 
-  <!-- ============ UPLOAD ============ -->
+  <!-- ============ UPLOAD & RUN ============ -->
   <section class="view" data-view="upload" id="view-upload">
     <button class="back-btn" onclick="showView('home')">← Back to overview</button>
     <div class="view-head">
@@ -246,11 +231,33 @@
     </div>
 
     <div class="banner" id="banner"></div>
+
+    <!-- ---- Links out to the 3 result pages ---- -->
+    <div class="section-links">
+      <h3>After a run</h3>
+      <div class="grid">
+        <button class="card" onclick="showView('vendors')">
+          <div class="card-top"><h3>Vendor resolution</h3><span class="go">Open →</span></div>
+          <div class="desc">Which vendor names were merged automatically, and which need a human check.</div>
+          <div class="card-stat"><div class="stat" id="homeVendorStat">—</div><div class="stat-label">groups need review</div></div>
+        </button>
+        <button class="card" onclick="showView('results')">
+          <div class="card-top"><h3>Reconciliation results</h3><span class="go">Open →</span></div>
+          <div class="desc">Per-vendor match rate, both by record count and by amount.</div>
+          <div class="card-stat"><div class="stat" id="homeResultsStat">—</div><div class="stat-label">record match rate</div></div>
+        </button>
+        <button class="card" onclick="showView('exceptions')">
+          <div class="card-top"><h3>Exceptions</h3><span class="go">Open →</span></div>
+          <div class="desc">Every unmatched record, with the reason and a recommended next step.</div>
+          <div class="card-stat"><div class="stat" id="homeExceptionsStat">—</div><div class="stat-label">records to resolve</div></div>
+        </button>
+      </div>
+    </div>
   </section>
 
   <!-- ============ VENDOR RESOLUTION ============ -->
   <section class="view" data-view="vendors" id="view-vendors">
-    <button class="back-btn" onclick="showView('home')">← Back to overview</button>
+    <button class="back-btn" onclick="showView('upload')">← Back to upload &amp; run</button>
     <div class="view-head">
       <h2>Vendor resolution</h2>
       <p id="vendorSummary">Run reconciliation to see which raw vendor names were merged automatically and which need human review.</p>
@@ -260,7 +267,7 @@
 
   <!-- ============ RESULTS ============ -->
   <section class="view" data-view="results" id="view-results">
-    <button class="back-btn" onclick="showView('home')">← Back to overview</button>
+    <button class="back-btn" onclick="showView('upload')">← Back to upload &amp; run</button>
     <div class="view-head">
       <h2>Reconciliation results</h2>
       <p>Per-vendor match rate, both by record count and by amount — a few high-value unmatched records can hide behind a good record-level rate.</p>
@@ -270,7 +277,7 @@
 
   <!-- ============ EXCEPTIONS ============ -->
   <section class="view" data-view="exceptions" id="view-exceptions">
-    <button class="back-btn" onclick="showView('home')">← Back to overview</button>
+    <button class="back-btn" onclick="showView('upload')">← Back to upload &amp; run</button>
     <div class="view-head">
       <h2>Exceptions</h2>
       <p>Every record that didn't cleanly reconcile, with the reason and a recommended next step.</p>
@@ -425,13 +432,12 @@
   function renderResults(data){
     const o = data.report.overall;
 
-    // Home tile previews
-    $('homeUploadStat').textContent = o.total;
+    // Quick-link card stats on the upload page
     $('homeVendorStat').textContent = data.needs_review_groups.length;
     $('homeResultsStat').textContent = fmtPct(o.record_match_rate_pct);
     $('homeExceptionsStat').textContent = data.exceptions.length;
 
-    // Vendor resolution view
+    // Vendor resolution panel
     $('vendorSummary').textContent = data.vendor_map_size + ' vendor name(s) resolved automatically · ' +
       data.needs_review_groups.length + ' group(s) need human review before reconciliation.';
     const reviewArea = $('vendorReviewArea');
@@ -444,7 +450,7 @@
           </div>
         `).join('') + '</div>';
 
-    // Results view
+    // Reconciliation results panel
     const perVendor = Object.entries(data.report.per_vendor).sort((a,b) => a[0].localeCompare(b[0]));
     $('resultsArea').innerHTML = perVendor.length === 0
       ? '<div class="empty">No vendor groups reached reconciliation.</div>'
@@ -469,7 +475,7 @@
           </tbody>
         </table></div>`;
 
-    // Exceptions view
+    // Exceptions panel
     const CAP = 100;
     const shown = data.exceptions.slice(0, CAP);
     $('exceptionsArea').innerHTML = data.exceptions.length === 0
