@@ -30,20 +30,6 @@ file + proxy, not a Next.js app).
 ---
 
 
-
----
-
-## Deploying
-
-**Backend (Render):** connect the repo, build command
-`pip install -r requirements.txt`, start command
-`uvicorn app:app --host 0.0.0.0 --port $PORT` (or just let it read
-`render.yaml`). Set `GROQ_API_KEY` if Online mode is needed.
-
-**Frontend (Vercel):** deploy the `frontend/` folder as the project root.
-Before deploying, edit `frontend/vercel.json` and replace the placeholder
-with the actual Render URL.
-
 ---
 
 **Sample test data** 
