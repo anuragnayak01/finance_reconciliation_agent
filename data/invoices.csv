@@ -1,0 +1,38 @@
+invoice_id,raw_vendor_name,legal_entity,tax_id,amount,invoice_date,reference,currency,status
+I001,Amazon Web Services,AWS India Pvt Ltd,AAACA1111A,12000,2026-08-05,INV-AWS-101,INR,open
+I002,Amazon Web Services,AWS India Pvt Ltd,AAACA1111A,8500,2026-08-10,INV-AWS-102,INR,open
+I003,Amazon Web Services,AWS India Pvt Ltd,AAACA1111A,15300,2026-08-15,INV-AWS-103,INR,open
+I004,Amazon Web Services Inc.,AWS India Pvt Ltd,AAACA1111A,6000,2026-08-18,INV-AWS-104,INR,open
+I005,AWS,AWS India Pvt Ltd,AAACA1111A,9000,2026-08-20,INV-AWS-105,INR,open
+I006,Amazon Web Services,AWS India Pvt Ltd,AAACA1111A,4500,2026-08-07,INV-AWS-106,INR,open
+I007,Tata Consultancy Services,TCS Ltd,AAACA2222B,22000,2026-08-03,INV-TCS-201,INR,open
+I008,TCS,TCS Ltd,AAACA2222B,5400,2026-08-12,INV-TCS-202,INR,open
+I009,TCS,TCS Ltd,AAACA2222B,3000,2026-08-14,INV-TCS-203,INR,open
+I010,TCS,TCS Ltd,AAACA2222B,7700,2026-08-16,,INR,open
+I011,Microsoft Corporation,Microsoft India Pvt Ltd,AAACA3333C,10000,2026-08-05,INV-MS-999,INR,open
+I012,Microsoft Corporation,Microsoft India Pvt Ltd,AAACA3333C,5000,2026-08-09,INV-MS-888,INR,open
+I013,GCP,Google India Pvt Ltd,AAACA4444D,5000,2026-08-01,,INR,open
+I014,Google Cloud Platform,Google India Pvt Ltd,AAACA4444D,5000,2026-08-20,,INR,open
+I015,GCP,Google India Pvt Ltd,AAACA4444D,5000,2026-08-25,,INR,open
+I016,Reliance Industries Ltd,Reliance Industries Ltd,AAACA5555E,6000,2026-08-10,INV-REL-401,INR,open
+I017,Reliance Industries Ltd,Reliance Industries Ltd,AAACA5555E,5000,2026-08-11,INV-REL-402,INR,open
+I018,Reliance Industries Ltd,Reliance Industries Ltd,AAACA5555E,4000,2026-08-12,INV-REL-403,INR,open
+I019,Infosys Limited,Infosys BPM Ltd,AAACA6666F,20000,2026-08-01,INV-INF-501,INR,open
+I020,Infosys Limited,Infosys BPM Ltd,AAACA6666F,20000,2026-08-15,INV-INF-502,INR,open
+I021,Wipro Limited,Wipro Enterprises,AAACA7777G,10000,2026-08-04,INV-WIP-601,INR,open
+I022,Wipro Limited,Wipro Enterprises,AAACA7777G,18000,2026-08-19,INV-WIP-602,INR,open
+I023,HCL Technologies,HCL Technologies Ltd,AAACA8888H,10000,2026-08-08,INV-HCL-701,INR,open
+I024,HCL Technologies,HCL Technologies Ltd,AAACA8888H,10000,2026-08-08,INV-HCL-701,INR,open
+I025,HCL Technologies,HCL Technologies Ltd,AAACA8888H,10000,2026-08-01,INV-HCL-702,INR,open
+I026,HCL Technologies,HCL Technologies Ltd,AAACA8888H,10000,2026-08-15,INV-HCL-703,INR,open
+I027,Adani Enterprises Ltd,Adani Enterprises Ltd,AAACA9999I,9000,2026-08-06,INV-ADN-801,INR,open
+I028,Zoho Corporation,Zoho Corp Pvt Ltd,AAACA1010J,4500,2026-08-07,INV-2026-0045,INR,open
+I029,Zoho Corporation,Zoho Corp Pvt Ltd,AAACA1010J,6200,2026-08-17,INV-2026-0099,INR,open
+I030,Zoho Corporation,Zoho Corp Pvt Ltd,AAACA1010J,5000,2026-08-09,INV-ZOH-901,INR,open
+I031,Zoho Corporation,Zoho Corp Pvt Ltd,AAACA1010J,12000,2026-08-21,INV-ZOH-902,INR,open
+I032,Freshworks Inc,Freshworks India Pvt Ltd,AAACA1111K,4000,2026-08-10,,INR,open
+I033,Freshworks Inc,Freshworks India Pvt Ltd,AAACA1111K,6000,2026-08-11,,INR,open
+I034,Freshworks Inc,Freshworks India Pvt Ltd,AAACA1111K,3000,2026-08-12,,INR,open
+I035,Freshworks Inc,Freshworks India Pvt Ltd,AAACA1111K,7000,2026-08-13,,INR,open
+I036,ABC Trading Ltd,,,5000,2026-08-10,INV-ABC-01,INR,open
+I037,Sunrise Trading Co,,,7500,2026-08-19,INV-SUN-01,INR,open
