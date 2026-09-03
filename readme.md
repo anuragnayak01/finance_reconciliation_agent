@@ -30,8 +30,6 @@ file + proxy, not a Next.js app).
 ---
 
 
----
-
 **Sample test data** 
 
 `transactions.csv`
