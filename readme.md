@@ -13,16 +13,39 @@ Live Deployed :  https://financereconciliationagent.vercel.app/
 
 ## Architecture
 
-| File | Role |
-|---|---|
-| `pipeline.py` | Orchestrates the two stages end to end |
-| `vendor_resolution.py` | Stage A — vendor name resolution (LLM call or offline heuristic fallback) |
-| `reconciliation.py`, `scoring.py` | Stage B — deterministic matching, allocation, scoring |
-| `report.py`, `utils.py`, `config.py` | Reporting and shared helpers |
-| `app.py` | FastAPI backend exposing `/api/health` and `/api/reconcile` |
-| `run_agent.py` | CLI entry point (`python3 run_agent.py transactions.csv invoices.csv`) |
-| `frontend/index.html` | Self-contained dashboard, no build step |
-| `frontend/vercel.json` | Proxies `/api/*` from the Vercel domain to the Render backend |
+
+
+
+
+Load CSVs — read transactions.csv and invoices.csv, parse dates.
+
+
+
+Vendor resolution (Stage A) — send only unique vendor name strings to an LLM (or offline fallback) to group name variants into canonical vendors; unclear ones go to needs_review instead of being guessed.
+
+
+
+Group by vendor — split all transactions/invoices into per-vendor buckets using the resolved vendor IDs.
+
+
+
+Duplicate detection — within each vendor, flag records with identical amount+reference+date as duplicates; pull them out of the matching pool.
+
+
+
+Reference-exact grouping — match transactions and invoices that share the same reference number, checking their combined amounts agree.
+
+
+
+Subset-sum allocation — for records with no reference, try to find a combination of amounts that sums exactly to a transaction (handles split/partial payments).
+
+
+
+Pairwise scorer fallback — for everything still unmatched, score each transaction against candidate invoices on reference/amount/date/tax-ID, with hard vetoes for contradictions, then decide RECONCILED / NOT_RECONCILED / INFO_MISSING.
+
+
+
+Report + exceptions — compute match-rate stats (overall and per vendor) and compile every unresolved record into an exception list with a reason and recommended action.
 
 Deployment split: **backend on Render**, **frontend on Vercel** (static
 file + proxy, not a Next.js app).
