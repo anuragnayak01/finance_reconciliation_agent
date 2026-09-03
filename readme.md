@@ -2,11 +2,12 @@
 
 A two-stage reconciliation pipeline: one scoped LLM call resolves vendor
 identity (merging raw name variants like "AWS" / "Amazon Web Services
-Inc."); everything after that — matching, allocation, exceptions — is
+Inc."); everything after that  matching, allocation, exceptions is
 deterministic, rule-based code. No amount, match, or allocation decision is
 ever made by a model.
 
 Live Deployed :  https://financereconciliationagent.vercel.app/
+[📁 Open Data Folder](./data/) as sample data
 ![Screenshot](Architecture.png)
 
 ---
